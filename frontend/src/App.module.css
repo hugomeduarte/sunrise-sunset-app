@@ -1,0 +1,57 @@
+.app {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-weight: 700;
+  color: var(--color-fg);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-muted);
+}
+
+.formSection {
+  margin-bottom: 2rem;
+}
+
+.alertSection,
+.loadingSection {
+  margin-bottom: 1.5rem;
+}
+
+.chartSection {
+  margin-bottom: 1.5rem;
+}
+
+.tableSection {
+  margin-bottom: 2rem;
+}
+
+.empty {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-muted);
+}
+
+.emptyHint {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
