@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-# Data access layer for sunrise/sunset data. Prefers DB, fetches from external API only when missing.
-# Mirrors frontend api/sunrise.ts responsibility: single place for "get sunrise data for location + range".
-#
-# Ruby vs TypeScript: in Ruby we usually have one class per file. "Types" = hash shape (no separate types file).
-# "Utils" = private methods below, or separate services (e.g. LocationGeocoder). Constants = in the class, like below.
+# Sunrise/sunset data: prefers DB, fetches from external API only for missing days.
 class SunriseSunsetRepository
   include Pagination
 
@@ -24,10 +20,7 @@ class SunriseSunsetRepository
     @api_service = api_service
   end
 
-  # Returns hash: { location:, start_date:, end_date:, data: [...], pagination: { page:, total_pages:, ... }, source: }
-  # Uses DB when possible; calls SunriseSunset.io only for missing days.
-  #
-  # Pagination: we slice the full date range by (page, limit). Page 1 + limit 31 = first 31 days, etc.
+  # Slice full date range by (page, limit); load from DB, fill gaps via API, return hash with data + pagination.
   def find_or_fetch(location_name:, start_date:, end_date:, limit: Pagination::DEFAULT_LIMIT, page: 1)
     start_d, end_d = parse_and_validate_dates!(start_date, end_date)
     limit = normalize_limit(limit)

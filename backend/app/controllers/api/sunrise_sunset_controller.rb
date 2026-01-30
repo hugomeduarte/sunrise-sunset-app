@@ -16,7 +16,6 @@ module Api
         limit: params[:limit],
         page: params[:page]
       )
-      # Header: database = all from DB, api = all from API, "database,api" = both
       response.headers["X-Sunrise-Source"] = result[:source]
       render json: result
     end
