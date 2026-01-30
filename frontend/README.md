@@ -9,7 +9,7 @@ pnpm install
 pnpm dev
 ```
 
-The dev server runs at `http://localhost:5173` and proxies `/api` to the backend (default `http://localhost:9292`). Set `VITE_API_PROXY_TARGET` if your Ruby API runs elsewhere.
+The dev server runs at `http://localhost:5173` and proxies `/api` to the Rails backend (default `http://localhost:3000`). Set `VITE_API_PROXY_TARGET` if your Rails server runs on another port.
 
 ## Build
 
@@ -50,6 +50,6 @@ The app expects a backend that serves:
 | Variable | Description |
 |----------|-------------|
 | `VITE_API_BASE_URL` | API base URL for production (optional; relative `/api` used if unset). |
-| `VITE_API_PROXY_TARGET` | Proxy target in dev (default `http://localhost:9292`). |
+| `VITE_API_PROXY_TARGET` | Proxy target in dev (default `http://localhost:3000`, Rails server). |
 
 See `.env.example`.

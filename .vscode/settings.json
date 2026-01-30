@@ -1,0 +1,4 @@
+{
+  "solargraph.useBundler": false,
+  "solargraph.commandPath": "/opt/homebrew/lib/ruby/gems/4.0.0/bin/solargraph"
+}
