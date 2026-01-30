@@ -4,7 +4,6 @@ module Api
   class BaseController < ActionController::API
     rescue_from SunriseSunsetRepository::LocationNotFoundError, with: :location_not_found
     rescue_from SunriseSunsetRepository::InvalidDateRangeError, with: :unprocessable
-    rescue_from SunriseSunsetRepository::ApiError, with: :external_api_error
     rescue_from SunriseSunsetApiService::ApiFailureError, with: :external_api_error
 
     private

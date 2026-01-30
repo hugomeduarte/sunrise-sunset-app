@@ -6,7 +6,6 @@ class SunriseSunsetRepository
 
   class Error < StandardError; end
   class LocationNotFoundError < Error; end
-  class ApiError < Error; end
   class InvalidDateRangeError < Error; end
 
   DATE_FORMAT = "%Y-%m-%d"

@@ -64,24 +64,12 @@ function SunriseApp() {
                 pagination={data.pagination}
                 onPrevious={() =>
                   setParams((prev) =>
-                    prev && data.pagination
-                      ? {
-                          ...prev,
-                          page: Math.max(1, data.pagination.page - 1),
-                          limit: data.pagination.limit,
-                        }
-                      : prev
+                    prev ? { ...prev, page: Math.max(1, data.pagination.page - 1) } : prev
                   )
                 }
                 onNext={() =>
                   setParams((prev) =>
-                    prev && data.pagination
-                      ? {
-                          ...prev,
-                          page: data.pagination.page + 1,
-                          limit: data.pagination.limit,
-                        }
-                      : prev
+                    prev ? { ...prev, page: data.pagination.page + 1 } : prev
                   )
                 }
                 isLoading={loading}

@@ -24,7 +24,12 @@ class SunriseSunsetApiService
     res = Net::HTTP.get_response(uri)
     raise ApiFailureError, "SunriseSunset.io returned #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 
-    body = JSON.parse(res.body)
+    body = begin
+      JSON.parse(res.body)
+    rescue JSON::ParserError => e
+      raise ApiFailureError, "Invalid API response: #{e.message}"
+    end
+
     status = body["status"]
     raise ApiFailureError, "API error: #{status}" if status && status != "OK"
 
@@ -39,12 +44,15 @@ class SunriseSunsetApiService
     return nil unless r
     date_str = r["date"]
     return nil unless date_str
+    date = Date.parse(date_str)
     {
-      date: Date.parse(date_str),
+      date: date,
       sunrise: r["sunrise"].to_s.presence,
       sunset: r["sunset"].to_s.presence,
       golden_hour: r["golden_hour"].to_s.presence,
       timezone: r["timezone"].to_s.presence
     }
+  rescue ArgumentError
+    nil
   end
 end
