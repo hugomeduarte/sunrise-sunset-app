@@ -98,9 +98,6 @@ Depois abre **http://localhost:5173**.
 
   Exemplo: pedido que devolve a página com dias 1–31; na BD já existem 30 desses dias → **1 chamada à API** para o 1 dia em falta.
 
-- **Repository + Services + lib**  
-  Controller só trata HTTP; repositório orquestra (datas, geocoder, BD, API, resposta); serviços fazem uma coisa cada (geocoder, HTTP à API); `lib/pagination` é reutilizável. Ver `backend/ARCHITECTURE.md` para o desenho.
-
 ---
 
 ## Possíveis melhorias
@@ -110,9 +107,6 @@ Depois abre **http://localhost:5173**.
 
 - **Cursor no chart**  
   Para muitos pontos, paginação por cursor no chart (ex.: arrastar e carregar mais dados a partir de um cursor) evita offset grande e mantém o chart fluido. Aqui usou-se paginação por página em chart e tabela para simplificar.
-
-- **Crescimento da BD**  
-  Não há TTL nem limpeza: cada par (local, data) que se busca fica na tabela. Com muitos locais e intervalos a tabela cresce; em produção poderia fazer sentido TTL ou limpeza periódica.
 
 ---
 
@@ -143,16 +137,8 @@ sunrise-sunset-app/
 
 ## Testes
 
-**Backend**
-
 ```bash
 cd backend && bundle exec rails test
-```
-
-**Frontend**
-
-```bash
-cd frontend && pnpm run lint
 ```
 
 ---
