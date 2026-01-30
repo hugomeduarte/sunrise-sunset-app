@@ -19,7 +19,7 @@ class LocationGeocoder
     "tokyo" => [35.6762, 139.6503],
     "sydney" => [-33.8688, 151.2093],
     # Polar — API can return null for sunrise/sunset in some months
-    "north pole" => [90.0, 0.0],
+    "north pole" => [64.750623,-147.350777],
     "south pole" => [-90.0, 0.0],
     "longyearbyen" => [78.2232, 15.6267],   # Svalbard: polar night Dec–Jan, midnight sun Apr–Aug
     "alert" => [82.5017, -62.3481],        # Canada, northernmost settlement

@@ -22,23 +22,26 @@ interface ChartPoint {
   dateLabel: string;
   sunrise: number | null;
   sunset: number | null;
+  goldenHour: number | null;
   sunriseLabel: string;
   sunsetLabel: string;
-  golden_hour: string;
+  goldenHourLabel: string;
 }
 
 function toChartPoints(data: SunriseSunsetDay[]): ChartPoint[] {
   return data.map((d) => {
     const sm = timeToMinutes(d.sunrise);
     const ssm = timeToMinutes(d.sunset);
+    const gh = timeToMinutes(d.golden_hour);
     return {
       date: d.date,
       dateLabel: formatDate(d.date),
       sunrise: sm,
       sunset: ssm,
+      goldenHour: gh,
       sunriseLabel: d.sunrise,
       sunsetLabel: d.sunset,
-      golden_hour: d.golden_hour,
+      goldenHourLabel: d.golden_hour,
     };
   });
 }
@@ -50,20 +53,32 @@ function formatTick(minutes: number): string {
 export function SunriseChart({ data, location }: SunriseChartProps) {
   const points = toChartPoints(data);
   const allMinutes = points.flatMap((p) =>
-    [p.sunrise, p.sunset].filter((m): m is number => m != null)
+    [p.sunrise, p.sunset, p.goldenHour].filter((m): m is number => m != null)
   );
   const minM = allMinutes.length ? Math.min(...allMinutes) : 0;
   const maxM = allMinutes.length ? Math.max(...allMinutes) : 24 * 60;
   const padding = 60;
   const yMin = Math.max(0, minM - padding);
   const yMax = Math.min(24 * 60, maxM + padding);
+  const hasAnyValue = allMinutes.length > 0;
+
+  if (points.length === 0) {
+    return (
+      <div className={styles.wrapper}>
+        <h3 className={styles.title}>Sunrise & sunset · {location}</h3>
+        <div className={styles.chart} style={{ height: 320 }}>
+          <p className={styles.empty}>No data to display for this range.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrapper}>
       <h3 className={styles.title}>
         Sunrise & sunset · {location}
       </h3>
-      <div className={styles.chart}>
+      <div className={styles.chart} style={{ height: 320 }}>
         <ResponsiveContainer width="100%" height={320}>
           <LineChart
             data={points}
@@ -81,12 +96,12 @@ export function SunriseChart({ data, location }: SunriseChartProps) {
               axisLine={{ stroke: 'var(--color-border)' }}
             />
             <YAxis
-              domain={[yMin, yMax]}
+              domain={hasAnyValue ? [yMin, yMax] : [0, 24 * 60]}
               tickFormatter={formatTick}
               tick={{ fill: 'var(--color-muted)', fontSize: 12 }}
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border)' }}
-              width={48}
+              width={52}
             />
             <Tooltip
               contentStyle={{
@@ -104,7 +119,9 @@ export function SunriseChart({ data, location }: SunriseChartProps) {
             />
             <Legend
               wrapperStyle={{ fontSize: '0.85rem' }}
-              formatter={(value) => (value === 'sunrise' ? 'Sunrise' : 'Sunset')}
+              formatter={(value) =>
+                value === 'sunrise' ? 'Sunrise' : value === 'sunset' ? 'Sunset' : 'Golden hour'
+              }
             />
             <Line
               type="monotone"
@@ -113,7 +130,7 @@ export function SunriseChart({ data, location }: SunriseChartProps) {
               stroke="var(--color-sunrise)"
               strokeWidth={2}
               dot={{ r: 3, fill: 'var(--color-sunrise)' }}
-              connectNulls={false}
+              connectNulls
             />
             <Line
               type="monotone"
@@ -122,13 +139,22 @@ export function SunriseChart({ data, location }: SunriseChartProps) {
               stroke="var(--color-sunset)"
               strokeWidth={2}
               dot={{ r: 3, fill: 'var(--color-sunset)' }}
-              connectNulls={false}
+              connectNulls
+            />
+            <Line
+              type="monotone"
+              dataKey="goldenHour"
+              name="goldenHour"
+              stroke="var(--color-golden-hour)"
+              strokeWidth={2}
+              dot={{ r: 3, fill: 'var(--color-golden-hour)' }}
+              connectNulls
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
       <p className={styles.hint}>
-        Golden hour is shown in the table below.
+        Sunrise, sunset and golden hour for the current page.
       </p>
     </div>
   );

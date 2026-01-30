@@ -4,6 +4,7 @@ import type { SunriseSunsetParams } from '../types/sunrise';
 
 const QUERY_KEY = ['sunrise-sunset'] as const;
 
+/** Paginated sunrise/sunset data (page-based). */
 export function useSunriseSunset(params: SunriseSunsetParams | null) {
   return useQuery({
     queryKey: [...QUERY_KEY, params],

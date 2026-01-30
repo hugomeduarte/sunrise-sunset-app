@@ -10,6 +10,7 @@
   --color-accent-alpha: rgba(232, 93, 4, 0.2);
   --color-sunrise: #f59e0b;
   --color-sunset: #dc2626;
+  --color-golden-hour: #d97706;
   --color-grid: #e8eaef;
   --color-error: #b91c1c;
   --color-error-bg: #fef2f2;
@@ -31,6 +32,7 @@
     --color-accent-alpha: rgba(249, 115, 22, 0.25);
     --color-sunrise: #fbbf24;
     --color-sunset: #ef4444;
+    --color-golden-hour: #f59e0b;
     --color-grid: #3c4043;
     --color-error: #f87171;
     --color-error-bg: #450a0a;

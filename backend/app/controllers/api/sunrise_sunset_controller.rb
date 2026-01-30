@@ -12,7 +12,9 @@ module Api
       result = repo.find_or_fetch(
         location_name: location,
         start_date: params[:start_date],
-        end_date: params[:end_date]
+        end_date: params[:end_date],
+        limit: params[:limit],
+        page: params[:page]
       )
       # Header: database = all from DB, api = all from API, "database,api" = both
       response.headers["X-Sunrise-Source"] = result[:source]

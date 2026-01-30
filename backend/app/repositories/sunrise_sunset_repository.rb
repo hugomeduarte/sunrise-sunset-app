@@ -2,7 +2,12 @@
 
 # Data access layer for sunrise/sunset data. Prefers DB, fetches from external API only when missing.
 # Mirrors frontend api/sunrise.ts responsibility: single place for "get sunrise data for location + range".
+#
+# Ruby vs TypeScript: in Ruby we usually have one class per file. "Types" = hash shape (no separate types file).
+# "Utils" = private methods below, or separate services (e.g. LocationGeocoder). Constants = in the class, like below.
 class SunriseSunsetRepository
+  include Pagination
+
   class Error < StandardError; end
   class LocationNotFoundError < Error; end
   class ApiError < Error; end
@@ -19,24 +24,38 @@ class SunriseSunsetRepository
     @api_service = api_service
   end
 
-  # Returns hash: { location:, start_date:, end_date:, data: [...], source: :database|:api|:"database,api" }
+  # Returns hash: { location:, start_date:, end_date:, data: [...], pagination: { page:, total_pages:, ... }, source: }
   # Uses DB when possible; calls SunriseSunset.io only for missing days.
-  # source: :database = all from DB, :api = all from API, :"database,api" = some from DB + some from API
-  def find_or_fetch(location_name:, start_date:, end_date:)
+  #
+  # Pagination: we slice the full date range by (page, limit). Page 1 + limit 31 = first 31 days, etc.
+  def find_or_fetch(location_name:, start_date:, end_date:, limit: Pagination::DEFAULT_LIMIT, page: 1)
     start_d, end_d = parse_and_validate_dates!(start_date, end_date)
+    limit = normalize_limit(limit)
+    page = normalize_page(page)
+
     coords = @geocoder.coordinates_for(location_name)
     raise LocationNotFoundError, "Location not found: #{location_name}" if coords.nil?
 
+    all_dates = (start_d..end_d).to_a
+    total = all_dates.size
+    page_dates = slice_for_page(all_dates, page, limit)
+
+    if page_dates.empty?
+      return build_response(location: location_name.strip, start_date: start_d, end_date: end_d, entries: [], page: page, limit: limit, total: total, source: :database)
+    end
+
     lat, lng = coords
     location_key = SunriseSunsetEntry.location_key_for(lat, lng)
+    range_start = page_dates.first
+    range_end = page_dates.last
 
-    existing = find_entries(location_key, start_d, end_d)
+    existing = find_entries(location_key, range_start, range_end)
     existing_dates = existing.map(&:date).to_set
-    missing_range = missing_date_ranges(start_d, end_d, existing_dates)
+    missing = missing_date_ranges(range_start, range_end, existing_dates)
     called_api = false
 
-    if missing_range.any?
-      fetched = fetch_and_persist(lat: lat, lng: lng, location_key: location_key, ranges: missing_range)
+    if missing.any?
+      fetched = fetch_and_persist(lat: lat, lng: lng, location_key: location_key, ranges: missing)
       existing = (existing + fetched).sort_by(&:date)
       called_api = true
     end
@@ -44,9 +63,12 @@ class SunriseSunsetRepository
     source = compute_source(existing.size, existing_dates.size, called_api)
     build_response(
       location: location_name.strip,
-      start_date: start_d.strftime(DATE_FORMAT),
-      end_date: end_d.strftime(DATE_FORMAT),
+      start_date: start_d,
+      end_date: end_d,
       entries: existing,
+      page: page,
+      limit: limit,
+      total: total,
       source: source
     )
   end
@@ -117,20 +139,23 @@ class SunriseSunsetRepository
     :"database,api"
   end
 
-  def build_response(location:, start_date:, end_date:, entries:, source: :database)
+  def build_response(location:, start_date:, end_date:, entries:, page:, limit: Pagination::DEFAULT_LIMIT, total:, source: :database)
     {
       location: location,
-      start_date: start_date,
-      end_date: end_date,
+      start_date: start_date.is_a?(Date) ? start_date.strftime(DATE_FORMAT) : start_date,
+      end_date: end_date.is_a?(Date) ? end_date.strftime(DATE_FORMAT) : end_date,
       source: source.to_s,
-      data: entries.map do |e|
-        {
-          date: e.date.strftime(DATE_FORMAT),
-          sunrise: e.sunrise || "",
-          sunset: e.sunset || "",
-          golden_hour: e.golden_hour || ""
-        }
-      end
+      pagination: build_pagination_meta(page, limit, total),
+      data: entries.map { |e| entry_to_hash(e) }
+    }
+  end
+
+  def entry_to_hash(e)
+    {
+      date: e.date.strftime(DATE_FORMAT),
+      sunrise: e.sunrise || "",
+      sunset: e.sunset || "",
+      golden_hour: e.golden_hour || ""
     }
   end
 end

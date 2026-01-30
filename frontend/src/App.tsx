@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SearchForm } from './components/SearchForm';
 import { SunriseChart } from './components/SunriseChart';
 import { SunriseTable } from './components/SunriseTable';
+import { PaginationControls } from './components/PaginationControls';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ErrorMessage } from './components/ErrorMessage';
 import { useSunriseSunset } from './hooks/useSunriseSunset';
@@ -23,7 +24,7 @@ function SunriseApp() {
   const { data, isLoading, isFetching, error, refetch } = useSunriseSunset(params);
 
   const handleSubmit = useCallback((p: SunriseSunsetParams) => {
-    setParams(p);
+    setParams({ ...p, page: 1 });
   }, []);
 
   const hasSearched = params !== null;
@@ -57,17 +58,49 @@ function SunriseApp() {
 
       {hasData && data && (
         <>
-          <section className={styles.chartSection} aria-label="Chart">
-            <SunriseChart
-              data={data.data}
-              location={data.location}
-            />
-          </section>
-          <section className={styles.tableSection} aria-label="Data table">
-            <SunriseTable
-              data={data.data}
-              location={data.location}
-            />
+          {data.pagination && data.pagination.total > 0 && (
+            <section className={styles.paginationSection} aria-label="Pagination">
+              <PaginationControls
+                pagination={data.pagination}
+                onPrevious={() =>
+                  setParams((prev) =>
+                    prev && data.pagination
+                      ? {
+                          ...prev,
+                          page: Math.max(1, data.pagination.page - 1),
+                          limit: data.pagination.limit,
+                        }
+                      : prev
+                  )
+                }
+                onNext={() =>
+                  setParams((prev) =>
+                    prev && data.pagination
+                      ? {
+                          ...prev,
+                          page: data.pagination.page + 1,
+                          limit: data.pagination.limit,
+                        }
+                      : prev
+                  )
+                }
+                isLoading={loading}
+              />
+            </section>
+          )}
+          <section className={styles.dataSection} aria-label="Chart and table">
+            <div className={styles.chartSection}>
+              <SunriseChart
+                data={data.data}
+                location={data.location}
+              />
+            </div>
+            <div className={styles.tableSection}>
+              <SunriseTable
+                data={data.data}
+                location={data.location}
+              />
+            </div>
           </section>
         </>
       )}

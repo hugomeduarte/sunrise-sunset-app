@@ -10,6 +10,8 @@ function buildQuery(params: SunriseSunsetParams): string {
     start_date: params.start_date,
     end_date: params.end_date,
   });
+  if (params.limit != null) q.set('limit', String(params.limit));
+  if (params.page != null) q.set('page', String(params.page));
   return q.toString();
 }
 
