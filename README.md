@@ -102,8 +102,8 @@ Depois abre **http://localhost:5173**.
 
 ## Possíveis melhorias
 
-- **Redis como cache**  
-  Dados históricos mudam pouco. Uma camada Redis em frente à BD (ler/gravar por chave tipo `location_key:date`) poderia reduzir latência (ex.: ~1 ms) e carga na BD. Depende se Redis for aceitável no ambiente (entrevista/deploy).
+- **Ruby cache ou Redis**  
+  Dados históricos mudam pouco. Uma camada de cache (Ruby/Rails.cache ou Redis) em frente à BD (ler/gravar por chave tipo `location_key:date`) poderia reduzir latência (ex.: ~1 ms) e carga na BD. 
 
 - **Cursor no chart**  
   Para muitos pontos, paginação por cursor no chart (ex.: arrastar e carregar mais dados a partir de um cursor) evita offset grande e mantém o chart fluido. Aqui usou-se paginação por página em chart e tabela para simplificar.
